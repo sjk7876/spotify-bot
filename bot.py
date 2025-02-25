@@ -74,41 +74,5 @@ def main():
             f.write(f"{artist}: {artists[artist]}\n")
 
 
-def main():
-    playlist_id = "4pA4z4soUdFWWMnS5JzWXT"
-    username = "orangeblackcow"
-    
-    tracks = get_playlist_tracks(username, playlist_id)
-    artists = {}
-
-    print("Finding the least popular artist in the playlist...")
-
-    i = 1
-    for item in tracks:
-        if i % 100 == 0: print(f"{i} tracks processed...")
-        i += 1
-
-        artist = item["track"]["artists"][0]
-        artist_id = artist["id"]
-        artist_name = artist["name"]
-
-        try:
-            if artist_name not in artists:
-                if artist_id is None:
-                    raise ValueError(f"Artist ID is None for {artist_name}")
-                artist_info = sp.artist(artist_id)
-                artists[artist_name] = artist_info["followers"]["total"]
-            
-        except Exception as e:
-            saveFailedArtist(artist)   
-
-    least_popular = min(artists, key=artists.get)
-    print(f"\nLeast popular artist: {least_popular} with {artists[least_popular]} followers")
-    
-    with open("artists.txt", "w") as f:
-        for artist in artists:
-            f.write(f"{artist}: {artists[artist]}\n")
-
-
 if __name__ == "__main__":
     main()
