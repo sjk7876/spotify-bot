@@ -35,6 +35,44 @@ def saveFailedArtist(artist):
     with open("failed_artists.txt", "a") as f:
         f.write(f"{artist['name']}: {artist['id']}\n")
 
+def main():
+    playlist_id = "4pA4z4soUdFWWMnS5JzWXT"
+    username = "orangeblackcow"
+    
+    tracks = get_playlist_tracks(username, playlist_id)
+    artists = {}
+
+    print("Finding the least popular artist in the playlist...")
+
+    for i in range(0, len(tracks), 50):
+        artists_ids = []
+        artists_names = []
+        for j in range(50):
+            temp = tracks[i+j]["track"]["artists"]
+            for artist in temp:
+                if artist["id"] is None:
+                    saveFailedArtist(artist)
+                if artist["id"] not in artists_ids and artist["name"] not in artists:
+                    artists_ids.append(artist["id"])
+                    artists_names.append(artist["name"])
+        
+        try:
+            found_artists = sp.artists(artists_ids)
+            for artist_name, artist_info in zip(artists_names, found_artists["artists"]):
+                artists[artist_name] = artist_info["followers"]["total"]
+            
+        except Exception as e:
+            saveFailedArtist(artist)
+
+        print(f"{(i+1) * 50} tracks processed...")
+
+    least_popular = min(artists, key=artists.get)
+    print(f"\nLeast popular artist: {least_popular} with {artists[least_popular]} followers")
+    
+    with open("artists.txt", "w") as f:
+        for artist in artists:
+            f.write(f"{artist}: {artists[artist]}\n")
+
 
 def main():
     playlist_id = "4pA4z4soUdFWWMnS5JzWXT"
